@@ -21,4 +21,10 @@ public class RoleService {
     public Role addRole(Role role){
         return roleRepository.save(role);
     }
+    
+    @Transactional
+    public String getRoleNameById(long fkRole) {
+        Role role = roleRepository.findById(fkRole).orElse(null);
+        return (role != null) ? role.getName() : null; // Return role name or null if not found
+    }
 }

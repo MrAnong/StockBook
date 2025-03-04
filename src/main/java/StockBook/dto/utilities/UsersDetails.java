@@ -1,11 +1,11 @@
 package StockBook.dto.utilities;
 
-public class UserDetails {
+public class UsersDetails {
 
 	private String email_PhoneNumber_Username;
     private String password;
 
-    public UserDetails() {
+    public UsersDetails() {
     }
 
     public String getEmail_PhoneNumber_Username() {

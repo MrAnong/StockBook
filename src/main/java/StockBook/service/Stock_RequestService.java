@@ -54,8 +54,8 @@ public class Stock_RequestService {
 
     //3. to get all stock_requests
     @Transactional
-    public List<Stock_Request> getAll(){
-        return stock_RequestRepository.findAll();
+    public List<Stock_Request> getAllInvoice(long id){
+        return stock_RequestRepository.findByFkInvoice(id);
     }
 
     //4. to delete a stock_request

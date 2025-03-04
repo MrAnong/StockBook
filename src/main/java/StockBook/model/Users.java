@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
@@ -18,11 +19,15 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Transient;
 
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
+
 
 @Entity
-@JsonIdentityInfo(
-		  generator = ObjectIdGenerators.PropertyGenerator.class, 
-		  property = "id")
 public class Users {
 
 	@Id
@@ -35,11 +40,11 @@ public class Users {
     private String middleName;
     @Column
     private String lastName;
-    @Column
+    @Column(unique=true)
     private String email;
-    @Column
+    @Column(unique=true)
     private String phoneNumber;
-    @Column
+    @Column(unique=true)
     private String username;
     @Column
     private String location;
@@ -51,6 +56,8 @@ public class Users {
     private LocalDateTime createdAt = LocalDateTime.now();
     @Column
     private long fkRole;
+    @Column
+    private long fkStore;
 
     public Users() {
     }
@@ -118,11 +125,13 @@ public class Users {
     public void setLocation(String location) {
         this.location = location;
     }
-
+    
+ // Ensure password is not serialized
     public String getPassword() {
         return password;
     }
-
+    
+    
     public void setPassword(String password) {
         this.password = password;
     }
@@ -148,12 +157,18 @@ public class Users {
     //a user can have one and only one role.
     @ManyToOne
     @JoinColumn(name = "role", referencedColumnName = "id", nullable=false)
-    @JsonBackReference
+    @JsonBackReference(value = "user-role")
     private Role role;
+    
+  //a user account can only belong to oone store.
+    @ManyToOne
+    @JoinColumn(name = "store", referencedColumnName = "id", nullable=true)
+    @JsonBackReference(value = "user-store")
+    private Stores store;
 
     //one user(inventory manager) can add several products
     @OneToMany(mappedBy = "inventoryManager")
-    @JsonManagedReference
+    @JsonManagedReference(value = "product-user")
     private List<Product> addedProducts;
 
     //one user(inventory manager) can create several stock requests
@@ -162,37 +177,37 @@ public class Users {
 
     //one user(store manager) can add several product categories.
     @OneToMany(mappedBy = "storeManager")
-    @JsonManagedReference
+    @JsonManagedReference(value = "productCategory-user")
     private List<Product_Category> productCategoriesList;
 
     //one user(store manager) can add several suppliers
     @OneToMany(mappedBy = "storeManager")
-    @JsonManagedReference
+    @JsonManagedReference(value = "supplier-user")
     private List<Suppliers> suppliersList;
 
     //one user(business owner)can own several businesses
     @OneToMany(mappedBy = "businessOwner")
-    @JsonManagedReference
+    @JsonManagedReference(value = "business-user")
     private List<Business> businesses;
 
     //a user(Teller) can generate several receipts
     @OneToMany(mappedBy = "teller")
-    @JsonManagedReference
+    @JsonManagedReference(value = "receipt-user")
     private List<Receipt> receiptsList;
 
     //a user(stock manager) can generate several invoices
     @OneToMany(mappedBy = "stockManager")
-    @JsonManagedReference
+    @JsonManagedReference(value = "generateInvoice-user")
     private List<Invoice> generatedInvoicesList;
     
     //a user(store manager) can validate several invoices
     @OneToMany(mappedBy = "storeManager")
-    @JsonManagedReference
+    @JsonManagedReference(value = "validateInvoice-user")
     private List<Invoice> validatedInvoicesList;
     
   //a stock manager can create several inventories
     @OneToMany(mappedBy = "stock_Manager")
-    @JsonManagedReference
+    @JsonManagedReference(value = "inventory-user")
     private List<Inventory> addedInventories;
 
     //*********** FOREIGN KEY METHODS **********
@@ -271,6 +286,55 @@ public class Users {
 	public void setFkRole(long fkRole) {
 		this.fkRole = fkRole;
 	}
-    
+
+	public long getFkStore() {
+		return fkStore;
+	}
+
+	public void setFkStore(long fkStore) {
+		this.fkStore = fkStore;
+	}
+
+	public Stores getStore() {
+		return store;
+	}
+
+	public void setStore(Stores store) {
+		this.store = store;
+	}
+
+	public List<Invoice> getValidatedInvoicesList() {
+		return validatedInvoicesList;
+	}
+
+	public void setValidatedInvoicesList(List<Invoice> validatedInvoicesList) {
+		this.validatedInvoicesList = validatedInvoicesList;
+	}
+
+	public List<Inventory> getAddedInventories() {
+		return addedInventories;
+	}
+
+	public void setAddedInventories(List<Inventory> addedInventories) {
+		this.addedInventories = addedInventories;
+	}
+	
+	
+	//********** session **********
+	
+	// Add this method in your Users class
+	public String generateJwtToken(String secretKey) {
+	    // Convert LocalDateTime to Date
+	    Date issuedAt = Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
+	    Date expiration = Date.from(LocalDateTime.now().plusDays(1).atZone(ZoneId.systemDefault()).toInstant()); // 1 day expiration
+
+	    return Jwts.builder()
+	            .setSubject(this.username)
+	            .claim("role", this.role.getName()) // Assuming Role has a getName() method
+	            .setIssuedAt(issuedAt) // Use Date here
+	            .setExpiration(expiration) // Use Date here
+	            .signWith(SignatureAlgorithm.HS256, secretKey)
+	            .compact();
+	}
     
 }

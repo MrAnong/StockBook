@@ -12,26 +12,35 @@ public class ReceiptItem {
     private long id;
 
     @Column
-    private long productId;
+    private long fkProduct;
 
     @Column
     private int quantity;
 
     @Column
     private float amount;
+    
+    @Column
+    private long fkReceipt;
 
     @ManyToOne
     @JoinColumn(name = "receipt_id", referencedColumnName = "id", nullable = false)
-    @JsonBackReference
+    @JsonBackReference(value = "item-receipt")
     private Receipt receipt;
+    
+  //a stock request record can only contain a product
+    @ManyToOne
+    @JoinColumn(name = "product", referencedColumnName = "id", nullable = false)
+    @JsonBackReference(value = "receiptItem-product")
+    private Product product;
 
     // Default constructor
     public ReceiptItem() {
     }
 
     // Parameterized constructor
-    public ReceiptItem(int productId, int quantity) {
-        this.productId = productId;
+    public ReceiptItem(int fkProduct, int quantity) {
+        this.fkProduct = fkProduct;
         this.quantity = quantity;
     }
 
@@ -44,12 +53,12 @@ public class ReceiptItem {
         this.id = id;
     }
 
-    public long getProductId() {
-        return productId;
+    public long getFkProduct() {
+        return fkProduct;
     }
 
-    public void setProductId(long productId) {
-        this.productId = productId;
+    public void setFkProduct(long fkProduct) {
+        this.fkProduct = fkProduct;
     }
 
     public int getQuantity() {
@@ -67,6 +76,14 @@ public class ReceiptItem {
     public void setAmount(float amount) {
         this.amount = amount;
     }
+    
+    public void setFkReceipt(long fkReceipt) {
+    	this.fkReceipt = fkReceipt;
+    }
+    
+    public long getFkReceipt() {
+    	return fkReceipt;
+    }
 
     public Receipt getReceipt() {
         return receipt;
@@ -76,12 +93,20 @@ public class ReceiptItem {
         this.receipt = receipt;
     }
 
-    // toString method for debugging and logging purposes
+    public Product getProduct() {
+		return product;
+	}
+
+	public void setProduct(Product product) {
+		this.product = product;
+	}
+
+	// toString method for debugging and logging purposes
     @Override
     public String toString() {
         return "ReceiptItem{" +
                 "id=" + id +
-                ", productId=" + productId +
+                ", fkProduct=" + fkProduct +
                 ", quantity=" + quantity +
                 ", amount=" + amount +
                 ", receipt=" + (receipt != null ? receipt.getId() : "null") +

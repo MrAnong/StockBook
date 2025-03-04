@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import StockBook.dto.responses.UsersResponse;
-import StockBook.dto.utilities.UserDetails;
+import StockBook.dto.utilities.UsersDetails;
 import StockBook.model.Users;
 import StockBook.service.UsersService;
 
@@ -24,13 +24,16 @@ public class UserController {
 	@Autowired
     private UsersService usersService;
 
+
     @PostMapping("register")
     public UsersResponse registration(@RequestBody Users user){
+    	
+    	System.out.println(user);
         return usersService.register(user);
     }
 
     @PostMapping("login")
-    public UsersResponse login(@RequestBody UserDetails userDetails){
+    public UsersResponse login(@RequestBody UsersDetails userDetails){
         return usersService.login(userDetails);
     }
 
@@ -73,5 +76,15 @@ public class UserController {
     @PutMapping("updateuser")
     public UsersResponse updateUser(@RequestBody Users user){
         return usersService.updateUser(user);
+    }
+    
+    @PostMapping("addUser")
+    public UsersResponse addUser(@RequestBody Users user){
+        return usersService.addAccount(user);
+    }
+    
+    @PostMapping("getStoreId")
+    public List<Users> getByStoreid(@RequestParam long id) {
+    	return usersService.getByStoreId(id);
     }
 }

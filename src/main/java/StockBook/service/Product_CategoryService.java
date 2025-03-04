@@ -9,7 +9,9 @@ import org.springframework.stereotype.Service;
 
 import StockBook.dto.responses.Product_CategoryResponse;
 import StockBook.model.Product_Category;
+import StockBook.model.Users;
 import StockBook.repository.Product_CategoryRepository;
+import StockBook.repository.UsersRepository;
 import jakarta.transaction.Transactional;
 
 
@@ -18,11 +20,25 @@ public class Product_CategoryService {
 	
 	@Autowired
     private Product_CategoryRepository product_categoryRepository;
+	
+	@Autowired
+	public UsersRepository usersRepository;
 
     //1. to add a category
     @Transactional
     public Product_CategoryResponse addCategory(Product_Category category){
         Product_CategoryResponse response = new Product_CategoryResponse();
+        
+       Optional<Users> foundUser = usersRepository.findById(category.getFkStoreManager());
+       if(foundUser.isEmpty()) {
+    	   
+    	   response.setMessage("failed! store manager doesnt exist");
+    	   response.setCategory(null);
+    	   return response;
+       }
+        
+        category.setStoreManager(foundUser.get());
+        
         response.setCategory(product_categoryRepository.save(category));
         response.setMessage("added successfully");
         return response;

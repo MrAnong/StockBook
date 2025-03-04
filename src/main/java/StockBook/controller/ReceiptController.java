@@ -7,11 +7,16 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import StockBook.dto.responses.ReceiptResponse;
 import StockBook.model.Receipt;
+import StockBook.model.ReceiptItem;
+import StockBook.repository.ReceiptItemRepository;
+import StockBook.service.ReceiptItemService;
 import StockBook.service.ReceiptService;
 
 @RestController
@@ -20,11 +25,14 @@ public class ReceiptController {
 
 	@Autowired
     private ReceiptService receiptService;
+	
+	@Autowired
+	private ReceiptItemService receiptItemService;
 
     //1. to add a category
     @PostMapping("add")
-    public ReceiptResponse addOne(Receipt receipts){
-        return receiptService.addReceipts(receipts);
+    public ReceiptResponse addOne(@RequestBody Receipt receipts){
+        return receiptService.addReceipt(receipts);
     }
 
     //2. to get a receipts
@@ -34,9 +42,9 @@ public class ReceiptController {
     }
 
     //3. to get all receipts
-    @GetMapping("findAll")
-    public List<Receipt> getAll(){
-        return receiptService.getAll();
+    @PostMapping("findAll")
+    public List<Receipt> getAll(@RequestParam long id){
+        return receiptService.getAll(id);
     }
 
     //4. to delete a receipts
@@ -55,5 +63,11 @@ public class ReceiptController {
     @PutMapping("update")
     public ReceiptResponse update(Receipt receipts){
         return receiptService.modifyOne(receipts);
+    }
+    
+    //7 to get the receiptItems for a particular receipt
+    @PostMapping("getByReceipt")
+    public List<ReceiptItem> findAllByReceipt(@RequestParam long id){
+    	return receiptItemService.getAllReceipt(id);
     }
 }

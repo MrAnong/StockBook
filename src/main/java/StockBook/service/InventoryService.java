@@ -9,7 +9,11 @@ import org.springframework.stereotype.Service;
 
 import StockBook.dto.responses.InventoryResponse;
 import StockBook.model.Inventory;
+import StockBook.model.Product;
+import StockBook.model.Users;
 import StockBook.repository.InventoryRepository;
+import StockBook.repository.ProductRepository;
+import StockBook.repository.UsersRepository;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -17,23 +21,21 @@ public class InventoryService {
 
 	@Autowired
     private InventoryRepository inventoryRepository;
+	
+	@Autowired
+	private ProductRepository productRepository;
+	
+	@Autowired
+	private UsersRepository usersRepository;
 
-    //1. to add a product inventory
-    @Transactional
-    public InventoryResponse addInventory(Inventory inventory){
-        InventoryResponse response = new InventoryResponse();
-        response.setInventory(inventoryRepository.save(inventory));
-        response.setMessage("added successfully");
-        return response;
-    }
 
     //2. to get a product inventory
     @Transactional
     public InventoryResponse getInventory(Long id){
         InventoryResponse response = new InventoryResponse();
-        Optional<Inventory> foundInventory = inventoryRepository.findById(id);
+        Optional<Inventory> foundInventory = inventoryRepository.findByProductId(id);
         if(foundInventory.isEmpty()){
-            response.setMessage("category not found");
+            response.setMessage("inventory not found");
             response.setInventory(null);
             return response;
         }
@@ -73,60 +75,111 @@ public class InventoryService {
         }
         return list;
     }
-
-    //6. to modify a product inventory.
-    //TODO: create an addition and substraction method for products inventory which will be called during the process of making a sale at the teller before creating a receipt
-    @Transactional
-    public InventoryResponse modifyOne(Inventory inventory){
-        InventoryResponse response = new InventoryResponse();
-        Optional<Inventory> foundInventory = inventoryRepository.findById(inventory.getId());
-        if(foundInventory.isEmpty()){
-            response.setMessage("failed! category not found");
-            response.setInventory(null);
-            return response;
-        }
-        response.setMessage("success");
-        response.setInventory(inventoryRepository.save(inventory));
-        return response;
-    }
     
     //7. to add the quantity of the product in stock
     @Transactional
-    public InventoryResponse updateInventory(int quantity, long productId) {
-    	InventoryResponse response = new InventoryResponse();
+    public InventoryResponse updateInventory(Inventory inventory) {
+InventoryResponse response = new InventoryResponse();
+
+		Optional<Users> foundUser = usersRepository.findById(inventory.getFkManager());
+		if(foundUser.isEmpty()) {
+			response.setMessage("failed! user not found");
+			response.setInventory(null);
+			return response;
+		}
     	
-    	Optional<Inventory> foundInventory = inventoryRepository.findByProductId(productId);
+    	Optional<Product> foundProduct = productRepository.findById(inventory.getFkProduct());
+    	
+    	if(foundProduct.isEmpty()) {
+    		 response.setMessage("failed! product not found.");
+             response.setInventory(null);
+             return response;
+    	}
+    	
+    	Optional<Inventory> foundInventory = inventoryRepository.findByProductId(inventory.getFkProduct());
+    	
     	if(foundInventory.isEmpty()) {
-    		  response.setMessage("failed! product inventory not found.");
-              response.setInventory(null);
+    		
+    		inventory.setProduct(foundProduct.get());
+        	inventory.setStock_Manager(foundUser.get());
+        	
+        	Product product = foundProduct.get();
+        	product.setInventoryQuantity(inventory.getQuantity());
+        	productRepository.save(product);
+        	
+    		inventoryRepository.save(inventory);
+    		
+    		  response.setMessage("success! product inventory saved.");
+              response.setInventory(inventory);
               return response;
     	}
-    	foundInventory.get().setQuantity(foundInventory.get().getQuantity() + quantity);
+    	
+    	Inventory newInventory = foundInventory.get();
+    	
+    	newInventory.setQuantity(newInventory.getQuantity() + inventory.getQuantity());
+    	newInventory.setProduct(foundProduct.get());
+    	newInventory.setStock_Manager(foundUser.get());
+    	
+    	Product product = foundProduct.get();
+    	product.setInventoryQuantity(newInventory.getQuantity());
+    	productRepository.save(product);
+    	
+    	inventoryRepository.save(newInventory);
+    	
     	response.setMessage("successfully added");
-    	response.setInventory(foundInventory.get());
+    	response.setInventory(newInventory);
     	return response;
     	
     }
     
     //8. to reduce the quantity of a product in stock
     @Transactional
-    public InventoryResponse downdateInventory(int quantity, long productId) {
-InventoryResponse response = new InventoryResponse();
+    public InventoryResponse subtractInventory(Inventory inventory) {
+    	InventoryResponse response = new InventoryResponse();
     	
-    	Optional<Inventory> foundInventory = inventoryRepository.findByProductId(productId);
+    	Optional<Users> foundUser = usersRepository.findById(inventory.getFkManager());
+    	if(foundUser.isEmpty()) {
+    		response.setMessage("failed! user not found");
+    		response.setInventory(null);
+    		return response;
+    	}
+    	
+    	Optional<Product> foundProduct = productRepository.findById(inventory.getFkProduct());
+    	
+    	if(foundProduct.isEmpty()) {
+    		 response.setMessage("failed! product not found.");
+             response.setInventory(null);
+             return response;
+    	}
+    	
+    	Optional<Inventory> foundInventory = inventoryRepository.findByProductId(inventory.getFkProduct());
     	if(foundInventory.isEmpty()) {
     		  response.setMessage("failed! product inventory not found.");
               response.setInventory(null);
               return response;
     	}
-    	if(quantity > foundInventory.get().getQuantity()){
+    	if(inventory.getQuantity() > foundInventory.get().getQuantity()){
     		 response.setMessage("failed! Only "+foundInventory.get().getQuantity()+" are left in stock");
              response.setInventory(null);
              return response;
     	}
-    	foundInventory.get().setQuantity(foundInventory.get().getQuantity() - quantity);
+    	
+    	
+    	Inventory newInventory = foundInventory.get();
+    	
+    	newInventory.setQuantity(foundInventory.get().getQuantity() - inventory.getQuantity());
+    	newInventory.setProduct(foundProduct.get());
+    	newInventory.setStock_Manager(foundUser.get());
+    	
+    	Product product = foundProduct.get();
+    	product.setInventoryQuantity(newInventory.getQuantity());
+    	productRepository.save(product);
+    	
+    	
+    	inventoryRepository.save(newInventory);
+    	
     	response.setMessage("successfully added");
-    	response.setInventory(foundInventory.get());
+    	response.setInventory(newInventory);
     	return response;
     }
     

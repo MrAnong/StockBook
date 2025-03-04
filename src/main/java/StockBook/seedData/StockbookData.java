@@ -8,6 +8,9 @@ import org.springframework.stereotype.Component;
 
 import StockBook.model.Business;
 import StockBook.model.Business_Category;
+import StockBook.model.Inventory;
+import StockBook.model.Product;
+import StockBook.model.Product_Category;
 import StockBook.model.Role;
 import StockBook.model.Stores;
 import StockBook.model.Users;
@@ -15,6 +18,9 @@ import StockBook.repository.RoleRepository;
 import StockBook.repository.UsersRepository;
 import StockBook.service.BusinessService;
 import StockBook.service.Business_CategoryService;
+import StockBook.service.InventoryService;
+import StockBook.service.ProductService;
+import StockBook.service.Product_CategoryService;
 import StockBook.service.StoresService;
 import StockBook.service.UsersService;
 
@@ -38,6 +44,15 @@ public class StockbookData implements CommandLineRunner{
 	
 	@Autowired
 	private StoresService storesService;
+	
+	@Autowired
+	private ProductService productService;
+	
+	@Autowired
+	private Product_CategoryService product_CategoryService;
+	
+	@Autowired
+	private InventoryService inventoryService;
 	
 	public void initializeData() {
 		
@@ -94,7 +109,7 @@ public class StockbookData implements CommandLineRunner{
 	        user3.setMiddleName("Christal");
 	        user3.setLastName("Nifu");
 	        user3.setEmail("bchris@gmail.com");
-	        user3.setPhoneNumber("999999999");
+	        user3.setPhoneNumber("999999");
 	        user3.setUsername("bchris");
 	        user3.setLocation("Yaounde");
 	        user3.setPassword("987654321");
@@ -159,6 +174,85 @@ public class StockbookData implements CommandLineRunner{
 		
 		storesService.addStore(store1);
 		
+	//********** user account **********
+		
+		Users user4 = new Users();
+		
+		user4.setUsername("user4");
+		user4.setPassword("mmooppaaoo");
+		user4.setFkRole(2);
+		user4.setFkStore(1);
+		
+		usersService.addAccount(user4);
+		
+		Users user5 = new Users();
+		
+		user5.setUsername("users5");
+		user5.setPassword("uusseerr55");
+		user5.setFkRole(3);
+		user5.setFkStore(1);
+		
+		usersService.addAccount(user5);
+		
+	//********** product category data *********
+		
+		Product_Category pCategory1 = new Product_Category();
+		
+		pCategory1.setName("Stationary");
+		pCategory1.setDescription("products for schools, office and workspaces");
+		pCategory1.setFkStoreManager(4);
+		
+		product_CategoryService.addCategory(pCategory1);
+		
+Product_Category pCategory2 = new Product_Category();
+		
+		pCategory1.setName("groceries");
+		pCategory1.setDescription("products for food items");
+		pCategory1.setFkStoreManager(4);
+		
+		product_CategoryService.addCategory(pCategory2);
+		
+Product_Category pCategory3 = new Product_Category();
+		
+		pCategory1.setName("shoes");
+		pCategory1.setDescription("products for footwear");
+		pCategory1.setFkStoreManager(4);
+		
+		product_CategoryService.addCategory(pCategory3);
+		
+Product_Category pCategory4 = new Product_Category();
+		
+		pCategory1.setName("watches");
+		pCategory1.setDescription("products for wrist watches");
+		pCategory1.setFkStoreManager(4);
+		
+		product_CategoryService.addCategory(pCategory4);
+		
+		
+	//********** product data **********
+		
+		Product product1 = new Product();
+		
+		product1.setName("blue bic");
+		product1.setManufacturer("bic");
+		product1.setOrigin("USA");
+		product1.setDescription("A blue pen");
+		product1.setCostPrice(50);
+		product1.setUnitPrice(150);
+		product1.setFkInventoryManager(5);
+		product1.setFkCategory(1);
+		
+		productService.addProducts(product1);
+		
+	//********** inventory **********
+		
+//		Inventory inventory1 = new Inventory();
+//		
+//		inventory1.setQuantity(100);
+//		inventory1.setFkProduct(1);
+//		inventory1.setFkManager(4);
+//		
+//		inventoryService.updateInventory(inventory1);
 		
 		
 		System.out.println("Stockbook data populated");

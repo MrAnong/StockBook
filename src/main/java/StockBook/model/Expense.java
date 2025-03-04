@@ -4,14 +4,17 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 
 @Entity
 public class Expense {
@@ -21,9 +24,9 @@ public class Expense {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     @Column
-    private BigDecimal amount;
+    private float amount;
     @Column
-    private long invoice_Id;
+    private long fkInvoice;
     @Column
     private LocalDateTime createdAt = LocalDateTime.now();
     @Column
@@ -40,11 +43,11 @@ public class Expense {
         this.id = id;
     }
 
-    public BigDecimal getAmount() {
+    public float getAmount() {
         return amount;
     }
 
-    public void setAmount(BigDecimal amount) {
+    public void setAmount(float amount) {
         this.amount = amount;
     }
 
@@ -55,14 +58,29 @@ public class Expense {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
+    
+    public long getFkInvoice() {
+		return fkInvoice;
+	}
+
+	public void setFkInvoice(long fkInvoice) {
+		this.fkInvoice = fkInvoice;
+	}
 
     //********** RELATIONSHIPS **********
 
-    //an expense record can belong to one and only one store
+   
+
+	//an expense record can belong to one and only one store
     @ManyToOne
     @JoinColumn(name = "store", referencedColumnName = "id", nullable = false)
-    @JsonBackReference
+    @JsonBackReference(value = "expense-store")
     private Stores store;
+    
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "invoice_id", referencedColumnName = "id", nullable = false)
+    @JsonManagedReference(value = "expense-invoice")
+    private Invoice invoice;
 
     //********** FOREEIGN KEY METHODS **********
 
@@ -75,19 +93,19 @@ public class Expense {
         this.store = store;
     }
 
-	public long getInvoice_Id() {
-		return invoice_Id;
-	}
-
-	public void setInvoice_Id(long invoice_Id) {
-		this.invoice_Id = invoice_Id;
-	}
-
 	public long getFkStore() {
 		return fkStore;
 	}
 
 	public void setFkStore(long fkStore) {
 		this.fkStore = fkStore;
+	}
+
+	public Invoice getInvoice() {
+		return invoice;
+	}
+
+	public void setInvoice(Invoice invoice) {
+		this.invoice = invoice;
 	}
 }

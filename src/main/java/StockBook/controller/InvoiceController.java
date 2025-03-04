@@ -7,7 +7,9 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import StockBook.dto.responses.InvoiceResponse;
@@ -23,13 +25,13 @@ public class InvoiceController {
 
     //1. to add an invoice
     @PostMapping("add")
-    public InvoiceResponse addOne(Invoice invoice){
+    public InvoiceResponse addOne(@RequestBody Invoice invoice){
         return invoiceService.addInvoice(invoice);
     }
 
     //2. to get an invoice
-    @GetMapping("findOne")
-    public InvoiceResponse getOne(Long id){
+    @PostMapping("findOne")
+    public InvoiceResponse getOne(@RequestParam Long id){
         return invoiceService.getInvoice(id);
     }
 
@@ -53,7 +55,7 @@ public class InvoiceController {
 
     //6. to modify an invoice
     @PutMapping("update")
-    public InvoiceResponse update(Invoice invoice){
-        return invoiceService.modifyOne(invoice);
+    public Invoice update(@RequestParam long id){
+        return invoiceService.modifyOne(id);
     }
 }

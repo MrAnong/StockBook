@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,7 +24,7 @@ public class Product_CategoryController {
 
     //1. to add a category
     @PostMapping("add")
-    public Product_CategoryResponse addOne(Product_Category category){
+    public Product_CategoryResponse addOne(@RequestBody Product_Category category){
         return product_CategoryService.addCategory(category);
     }
 

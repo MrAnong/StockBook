@@ -24,7 +24,7 @@ public class Product_Category {
 	    @Column
 	    private String name;
 	    @Column
-	    private String descsription;
+	    private String description;
 	    @Column
 	    private long fkStoreManager;
 
@@ -47,26 +47,50 @@ public class Product_Category {
 	        this.name = name;
 	    }
 
-	    public String getDescsription() {
-	        return descsription;
+	    public String getDescription() {
+	        return description;
 	    }
 
-	    public void setDescsription(String descsription) {
-	        this.descsription = descsription;
+	    public void setDescription(String description) {
+	        this.description = description;
 	    }
 
 	    //********** RELATIONSHIPS **********
 
 
-	    //one product category can be added by one and only one user(store manager)
+	    public long getFkStoreManager() {
+			return fkStoreManager;
+		}
+
+		public void setFkStoreManager(long fkStoreManager) {
+			this.fkStoreManager = fkStoreManager;
+		}
+
+		public Users getStoreManager() {
+			return storeManager;
+		}
+
+		public void setStoreManager(Users storeManager) {
+			this.storeManager = storeManager;
+		}
+
+		public List<Product> getProductsList() {
+			return productsList;
+		}
+
+		public void setProductsList(List<Product> productsList) {
+			this.productsList = productsList;
+		}
+
+		//one product category can be added by one and only one user(store manager)
 	    @ManyToOne
 	    @JoinColumn(name = "addedBy", referencedColumnName = "id", nullable=false)
-	    @JsonBackReference
+	    @JsonBackReference(value = "productCategory-user")
 	    private Users storeManager;
 
 	    //a product category can have several products for that category
 	    @OneToMany(mappedBy = "productCategory")
-	    @JsonManagedReference
+	    @JsonManagedReference(value = "product-category")
 	    private List<Product> productsList;
 
 	    //********** FOREIGN KEY METHODS ************

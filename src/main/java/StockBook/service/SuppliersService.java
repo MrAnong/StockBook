@@ -9,7 +9,9 @@ import org.springframework.stereotype.Service;
 
 import StockBook.dto.responses.SuppliersResponse;
 import StockBook.model.Suppliers;
+import StockBook.model.Users;
 import StockBook.repository.SuppliersRepository;
+import StockBook.repository.UsersRepository;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -17,11 +19,22 @@ public class SuppliersService {
 
 	@Autowired
     private SuppliersRepository suppliersRepository;
+	
+	@Autowired
+	private UsersRepository usersRepository;
 
     //1. to add a supplier
     @Transactional
     public SuppliersResponse addSupplier(Suppliers supplier){
         SuppliersResponse response = new SuppliersResponse();
+        
+        Optional<Users> foundUser = usersRepository.findById(supplier.getFkStoreManager());
+        if(foundUser.isEmpty()) {
+        	response.setSupplier(null);
+            response.setMessage("failed");
+            return response;
+        }
+        supplier.setStoreManager(foundUser.get());
         response.setSupplier(suppliersRepository.save(supplier));
         response.setMessage("added successfully");
         return response;

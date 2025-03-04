@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import StockBook.dto.responses.ReceiptItemResponse;
 import StockBook.model.ReceiptItem;
+import StockBook.model.Stock_Request;
 import StockBook.repository.ReceiptItemRepository;
 import jakarta.transaction.Transactional;
 
@@ -98,5 +99,11 @@ public class ReceiptItemService {
         response.setMessage("success");
         response.setReceiptItems(receiptItemRepository.save(receiptItem));
         return response;
+    }
+    
+    //3. to get all stock_requests
+    @Transactional
+    public List<ReceiptItem> getAllReceipt(long id){
+        return receiptItemRepository.findByFkReceipt(id);
     }
 }

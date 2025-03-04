@@ -1,3 +1,4 @@
+
 package StockBook.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -22,9 +23,9 @@ public class Stock_Request {
     @Column
     private float cost;
     @Column
-    private String status;
-    @Column
     private long fkProduct;
+    @Column
+    private String name;
     @Column
     private long fkInvoice;
 
@@ -55,9 +56,6 @@ public class Stock_Request {
         this.cost = cost;
     }
 
-    public String getStatus() {
-        return status;
-    }
 
     //********** RELATIONSHIPS ***************
 
@@ -77,9 +75,6 @@ public class Stock_Request {
 		this.fkInvoice = fkInvoice;
 	}
 
-	public void setStatus(String status) {
-        this.status = status;
-    }
 
     //one stock request can be created by one and only one user(inventory manager)
 //    @ManyToOne
@@ -89,13 +84,13 @@ public class Stock_Request {
     //a stock request record can only contain a product
     @ManyToOne
     @JoinColumn(name = "product", referencedColumnName = "id", nullable = false)
-    @JsonBackReference
+    @JsonBackReference(value = "stockRequest-product")
     private Product product;
     
     //one stock request can belong to only one invoice
     @ManyToOne
     @JoinColumn(name = "invoiceId", referencedColumnName = "id", nullable = false)
-    @JsonBackReference
+    @JsonBackReference(value = "stockRequest-invoice")
     private Invoice invoice;
 
     //********** FOREIGN KEY METHODS **********
@@ -124,6 +119,15 @@ public class Stock_Request {
 	public void setInvoice(Invoice invoice) {
 		this.invoice = invoice;
 	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+	
     
     
 }

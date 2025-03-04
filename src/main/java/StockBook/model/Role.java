@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
@@ -50,7 +51,7 @@ public class Role {
 
 	    //a role can be occupied by several users.
 	    @OneToMany(mappedBy = "role")
-	    @JsonManagedReference
+	    @JsonManagedReference(value = "user-role")
 	    private List<Users> user;
 
 	    //********* FOREIGN KEY METHODS ***********

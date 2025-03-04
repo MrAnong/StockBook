@@ -7,14 +7,17 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 
 @Entity
 public class Product {
@@ -47,6 +50,10 @@ public class Product {
     private long fkCategory;
     @Column
     private long fkSupplier;
+    @Column
+    private long fkStore;
+    @Column
+    private int inventoryQuantity;
 
     public Product() {
     }
@@ -157,33 +164,50 @@ public class Product {
 		this.fkSupplier = fkSupplier;
 	}
 
+	public int getInventoryQuantity() {
+		return inventoryQuantity;
+	}
+
+	public void setInventoryQuantity(int inventoryQuantity) {
+		this.inventoryQuantity = inventoryQuantity;
+	}
+
 	//a product can be added by one and only one user(inventory manager)
     @ManyToOne
     @JoinColumn(name = "addedBy", referencedColumnName = "id", nullable=false)
-    @JsonBackReference
+    @JsonBackReference(value = "product-user")
     private Users inventoryManager;
 
     //a product can belong to one and only one category
     @ManyToOne
     @JoinColumn(name = "category", referencedColumnName = "id", nullable = false)
-    @JsonBackReference
+    @JsonBackReference(value = "product-category")
     private Product_Category productCategory;
 
     //a product can be supplied by one and only one supplier
     @ManyToOne
-    @JoinColumn(name = "supplier", referencedColumnName = "id", nullable = false)
-    @JsonBackReference
+    @JoinColumn(name = "supplier", referencedColumnName = "id", nullable = true)
+    @JsonBackReference(value = "product-supplier")
     private Suppliers supplier;
 
     //a product can have several inventory records
-    @OneToMany(mappedBy = "product")
-    @JsonManagedReference
-    private List<Inventory> inventoryList;
+//    @OneToMany(mappedBy = "product")
+//    @JsonManagedReference(value = "inventory-product")
+//    private List<Inventory> inventoryList;
+    
+    @OneToOne(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonBackReference(value = "inventory-product")
+    private Inventory inventory;
 
     //a product can be found in several stock request records
     @OneToMany(mappedBy = "product")
-    @JsonManagedReference
+    @JsonManagedReference(value = "stockRequest-product")
     private List<Stock_Request> stockRequestsList;
+    
+  //a product can be found in several receipt item records
+    @OneToMany(mappedBy = "product")
+    @JsonManagedReference(value = "receiptItem-product")
+    private List<ReceiptItem> receiptItemssList;
 
     //********** FOREIGN KEY METHODS ***********
 
@@ -212,14 +236,6 @@ public class Product {
         this.supplier = supplier;
     }
 
-    public List<Inventory> getInventoryList() {
-        return inventoryList;
-    }
-
-    public void setInventoryList(List<Inventory> inventoryList) {
-        this.inventoryList = inventoryList;
-    }
-
     public List<Stock_Request> getStockRequestsList() {
         return stockRequestsList;
     }
@@ -227,4 +243,28 @@ public class Product {
     public void setStockRequestsList(List<Stock_Request> stockRequestsList) {
         this.stockRequestsList = stockRequestsList;
     }
+
+	public long getFkStore() {
+		return fkStore;
+	}
+
+	public void setFkStore(long fkStore) {
+		this.fkStore = fkStore;
+	}
+
+	public Inventory getInventory() {
+		return inventory;
+	}
+
+	public void setInventory(Inventory inventory) {
+		this.inventory = inventory;
+	}
+
+	public List<ReceiptItem> getReceiptItemssList() {
+		return receiptItemssList;
+	}
+
+	public void setReceiptItemssList(List<ReceiptItem> receiptItemssList) {
+		this.receiptItemssList = receiptItemssList;
+	}
 }

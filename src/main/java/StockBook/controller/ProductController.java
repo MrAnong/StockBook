@@ -7,7 +7,9 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import StockBook.dto.responses.ProductResponse;
@@ -15,21 +17,23 @@ import StockBook.model.Product;
 import StockBook.service.ProductService;
 
 @RestController
-@RequestMapping("/stockbook/product/")
+@RequestMapping("/stockbook/product")
 public class ProductController {
 
 	@Autowired
     private ProductService productService;
 
     //1. to add a category
-    @PostMapping("add")
-    public ProductResponse addOne(Product products){
+    @PostMapping(value = "/add", consumes = "application/json")
+    public ProductResponse addOne(@RequestBody Product products){
+    	
+    	System.out.println("test brunu----------------------");
         return productService.addProducts(products);
     }
 
     //2. to get a category
     @GetMapping("findOne")
-    public ProductResponse getOne(int id){
+    public ProductResponse getOne(@RequestParam long id){
         return productService.getProducts(id);
     }
 

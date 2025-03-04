@@ -1,5 +1,6 @@
 package StockBook.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,5 +21,7 @@ public interface UsersRepository extends JpaRepository<Users, Long> {
 //    
 // // Method to find user by email or phone number
 //    Optional<Users> findByEmailOrPhoneNumber(String email, String phoneNumber);
+
+	List<Users> findByFkStore(Long id);
 }
 

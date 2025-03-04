@@ -3,14 +3,17 @@ package StockBook.model;
 import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 
 @Entity
 public class Income {
@@ -22,7 +25,7 @@ public class Income {
     @Column
     private float amount;
     @Column
-    private long receipt_id;
+    private long fkReceipt;
     @Column
     private LocalDateTime createdAt = LocalDateTime.now();
     @Column
@@ -61,8 +64,13 @@ public class Income {
     //an income record can belong to one and only one store
     @ManyToOne
     @JoinColumn(name = "store", referencedColumnName = "id", nullable = false)
-    @JsonBackReference
+    @JsonBackReference(value = "income-store")
     private Stores store;
+    
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "receipt_id", referencedColumnName = "id", nullable = false)
+    @JsonManagedReference(value = "income-receipt")
+    private Receipt receipt;
 
     //********** FREIGN KEY METHODS *********
 
@@ -75,12 +83,12 @@ public class Income {
         this.store = store;
     }
 
-	public long getReceipt_id() {
-		return receipt_id;
+	public long getFkReceipt() {
+		return fkReceipt;
 	}
 
-	public void setReceipt_id(long receipt_id) {
-		this.receipt_id = receipt_id;
+	public void setFkReceipt(long fkReceipt) {
+		this.fkReceipt = fkReceipt;
 	}
 
 	public long getFkStore() {
@@ -89,5 +97,13 @@ public class Income {
 
 	public void setFkStore(long fkStore) {
 		this.fkStore = fkStore;
+	}
+
+	public Receipt getReceipt() {
+		return receipt;
+	}
+
+	public void setReceipt(Receipt receipt) {
+		this.receipt = receipt;
 	}
 }

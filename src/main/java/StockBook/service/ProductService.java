@@ -9,7 +9,13 @@ import org.springframework.stereotype.Service;
 
 import StockBook.dto.responses.ProductResponse;
 import StockBook.model.Product;
+import StockBook.model.Product_Category;
+import StockBook.model.Suppliers;
+import StockBook.model.Users;
 import StockBook.repository.ProductRepository;
+import StockBook.repository.Product_CategoryRepository;
+import StockBook.repository.SuppliersRepository;
+import StockBook.repository.UsersRepository;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -17,19 +23,62 @@ public class ProductService {
 
 	@Autowired
     private ProductRepository productRepository;
+	
+	@Autowired
+	private UsersRepository usersRepository;
+	
+	@Autowired
+	private Product_CategoryRepository product_CategoryRepository;
+	
+	@Autowired
+	private SuppliersRepository suppliersRepository;
 
     //1. to add a product
     @Transactional
     public ProductResponse addProducts(Product product){
         ProductResponse response = new ProductResponse();
-        response.setProducts(productRepository.save(product));
+        
+        Optional<Users> foundUser = usersRepository.findById(product.getFkInventoryManager());
+        Optional<Product_Category> foundCategory = product_CategoryRepository.findById(product.getFkCategory());
+        
+        if(foundUser.isEmpty()) {
+        	if(foundCategory.isEmpty()) {
+        		
+        		response.setMessage("failed! wrong credentials");
+            	response.setProducts(null);
+            	return response;
+        	}
+        	response.setMessage("failed! wrong credentials");
+        	response.setProducts(null);
+        	return response;
+        }
+     
+        
+        if(product.getFkSupplier() > 0) {
+        	Optional<Suppliers> foundSupplier = suppliersRepository.findById(product.getFkSupplier());
+        	if(foundSupplier.isEmpty()) {
+        		response.setMessage("failed! wrong credentials");
+            	response.setProducts(null);
+            	return response;
+        	}
+        	product.setSupplier(foundSupplier.get());
+        }
+        
+        product.setInventoryManager(foundUser.get());
+        product.setProductCategory(foundCategory.get());
+        product.setFkStore(foundUser.get().getFkStore());
+        
+        
+        productRepository.save(product);
+        
+        response.setProducts(product);
         response.setMessage("added successfully");
         return response;
     }
 
     //2. to get a product
     @Transactional
-    public ProductResponse getProducts(int id){
+    public ProductResponse getProducts(long id){
         ProductResponse response = new ProductResponse();
         Optional<Product> foundproducts= productRepository.findById((long) id);
         if(foundproducts.isEmpty()){

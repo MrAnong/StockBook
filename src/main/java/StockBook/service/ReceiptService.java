@@ -7,9 +7,22 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import StockBook.dto.responses.InvoiceResponse;
 import StockBook.dto.responses.ReceiptResponse;
+import StockBook.model.Income;
+import StockBook.model.Invoice;
+import StockBook.model.Product;
 import StockBook.model.Receipt;
+import StockBook.model.ReceiptItem;
+import StockBook.model.Stock_Request;
+import StockBook.model.Stores;
+import StockBook.model.Users;
+import StockBook.repository.IncomeRepository;
+import StockBook.repository.ProductRepository;
+import StockBook.repository.ReceiptItemRepository;
 import StockBook.repository.ReceiptRepository;
+import StockBook.repository.StoresRepository;
+import StockBook.repository.UsersRepository;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -17,15 +30,90 @@ public class ReceiptService {
 
 	@Autowired
     private ReceiptRepository receiptRepository;
+	
+	@Autowired
+	private UsersRepository usersRepository;
+	
+	@Autowired
+	private StoresRepository storesRepository;
+	
+	@Autowired
+	private ProductRepository productRepository;
+	
+	@Autowired
+	private ReceiptItemRepository receiptItemRepository;
+	
+	@Autowired
+	private IncomeRepository incomeRepository;
 
     //1. to add a Receipts
     @Transactional
-    public ReceiptResponse addReceipts(Receipt receipt){
+    public ReceiptResponse addReceipt(Receipt receipt){
         ReceiptResponse response = new ReceiptResponse();
-        response.setReceipts(receiptRepository.save(receipt));
+        
+        //check if the Teller exists
+        Optional<Users> foundUser = usersRepository.findById(receipt.getFkTeller());
+        if(foundUser.isEmpty()) {
+        	response.setMessage("failed! Inventory Manager not found");
+        	response.setReceipts(null);
+        	return response;
+        }
+        
+        //check if the store exists
+        Optional<Stores> foundStore = storesRepository.findById(receipt.getFkStore());
+        if(foundStore.isEmpty()) {
+        	response.setMessage("failed! store not found");
+        	response.setReceipts(null);
+        	return response;
+        }
+        
+        //set the manager, store and status
+        receipt.setTeller(foundUser.get());
+        receipt.setStore(foundStore.get());
+        
+        //save the invoice
+        Receipt savedReceipt = receiptRepository.save(receipt);
+        
+        //create a temporary list object to hold the requestlist data in the transient invoice object
+        List<ReceiptItem> list = new ArrayList<>();
+        
+        float amount = 0;
+        
+        //for every receiptItem which wasnt saved, attach the receipt id and save it
+        for(ReceiptItem items: receipt.getReceiptItemList()) {
+        	Optional<Product> foundProduct = productRepository.findById(items.getFkProduct());
+        	
+        	items.setAmount(foundProduct.get().getUnitPrice() * items.getQuantity());
+        	items.setProduct(foundProduct.get());
+        	items.setFkReceipt(savedReceipt.getId());
+        	items.setReceipt(savedReceipt);
+        	
+        	receiptItemRepository.save(items);
+        	
+        	amount = items.getAmount() + amount;
+        	
+        	list.add(items);
+        }
+        
+        //attribute the list we just filled to the requestList object of the invoice and update the invoice
+        savedReceipt.setReceiptItems(list);
+        savedReceipt.setTotal(amount);
+        
+        receiptRepository.save(savedReceipt);
+        
+        Income income = new Income();
+        
+        income.setAmount(savedReceipt.getTotal());
+        income.setFkReceipt(savedReceipt.getId());
+        income.setReceipt(savedReceipt);
+        income.setFkStore(savedReceipt.getFkStore());
+        income.setStore(savedReceipt.getStore());
+        
+        incomeRepository.save(income);
+        
+        response.setReceipts(savedReceipt);
         response.setMessage("added successfully");
         
-        //TODO: call the additemlist method and pass the item list together with the receipt id
         return response;
     }
 
@@ -46,8 +134,8 @@ public class ReceiptService {
 
     //3. to get all receipts
     @Transactional
-    public List<Receipt> getAll(){
-        return receiptRepository.findAll();
+    public List<Receipt> getAll(long id){
+        return receiptRepository.findByFkStore(id);
     }
 
     //4. to delete a receipts

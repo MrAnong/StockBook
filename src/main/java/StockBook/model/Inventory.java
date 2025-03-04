@@ -1,14 +1,17 @@
 package StockBook.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 
 @Entity
 public class Inventory {
@@ -22,7 +25,7 @@ public class Inventory {
     @Column
     private long fkProduct;
     @Column
-    private long fkmanager;
+    private long fkManager;
 
     public Inventory() {
     }
@@ -53,24 +56,29 @@ public class Inventory {
 		this.fkProduct = fkProduct;
 	}
 
-	public long getFkmanager() {
-		return fkmanager;
+	public long getFkManager() {
+		return fkManager;
 	}
 
-	public void setFkmanager(long fkmanager) {
-		this.fkmanager = fkmanager;
+	public void setFkManager(long fkManager) {
+		this.fkManager = fkManager;
 	}
 
 	//an inventory record can only be of a single product
-    @ManyToOne
+//    @ManyToOne
+//    @JoinColumn(name = "product_id", referencedColumnName = "id", nullable = false)
+//    @JsonBackReference(value = "inventory-product")
+//    private Product product;
+    
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id", referencedColumnName = "id", nullable = false)
-    @JsonBackReference
+    @JsonManagedReference(value = "inventory-product")
     private Product product;
     
     //an inventory can be updated by a single manager
     @ManyToOne
     @JoinColumn(name = "stock_Manager", referencedColumnName = "id", nullable = false)
-    @JsonBackReference
+    @JsonBackReference(value = "inventory-user")
     private Users stock_Manager;
 
     //********* FOREIGN KEY METHODS **********

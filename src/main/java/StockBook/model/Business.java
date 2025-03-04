@@ -99,18 +99,18 @@ public class Business {
     //a business can be owned by one and only one user(business owner)
     @ManyToOne
     @JoinColumn(name = "owner", referencedColumnName = "id", nullable = false)
-    @JsonBackReference
+    @JsonBackReference(value = "business-user")
     private Users businessOwner;
 
     //a business can have several sub branches(stores)
     @OneToMany(mappedBy = "business")
-    @JsonManagedReference
+    @JsonManagedReference(value = "store-business")
     private List<Stores> stores;
 
     //a business can belong to one and only one business category
     @ManyToOne
     @JoinColumn(name = "category", referencedColumnName = "id", nullable = false)
-    @JsonBackReference
+    @JsonBackReference(value = "business-category")
     private Business_Category businessCategory;
 
     //********** FOREIGN KEY METHODS **********

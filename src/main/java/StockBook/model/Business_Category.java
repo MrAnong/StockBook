@@ -55,7 +55,7 @@ public class Business_Category {
 
     //a business category can have several businesses belong to it
     @OneToMany(mappedBy = "businessCategory")
-    @JsonManagedReference
+    @JsonManagedReference(value = "business-category")
     private List<Business> businessList;
 
     //***************** FOREIGN KEY METHODS ******************

@@ -29,7 +29,7 @@ public class Suppliers {
     @Column
     private String email;
     @Column
-    private int phoneNumber;
+    private String phoneNumber;
     @Column
     private String address;
     @Column
@@ -76,11 +76,11 @@ public class Suppliers {
         this.email = email;
     }
 
-    public int getPhoneNumber() {
+    public String getPhoneNumber() {
         return phoneNumber;
     }
 
-    public void setPhoneNumber(int phoneNumber) {
+    public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
 
@@ -118,15 +118,23 @@ public class Suppliers {
 
     //********** RELATIONSHIPS ***************
 
-    //one supplier can be added by one and only one user(store manager)
+    public long getFkStoreManager() {
+		return fkStoreManager;
+	}
+
+	public void setFkStoreManager(long fkStoreManager) {
+		this.fkStoreManager = fkStoreManager;
+	}
+
+	//one supplier can be added by one and only one user(store manager)
     @ManyToOne
     @JoinColumn(name = "addedBy", referencedColumnName = "id", nullable=false)
-    @JsonBackReference
+    @JsonBackReference(value = "supplier-user")
     private Users storeManager;
 
     //a supplier can supply several products
     @OneToMany(mappedBy = "supplier")
-    @JsonManagedReference
+    @JsonManagedReference(value = "product-supplier")
     private List<Product> productsSuppliedList;
 
     //************ FOREIGN KEY METHODS ***********

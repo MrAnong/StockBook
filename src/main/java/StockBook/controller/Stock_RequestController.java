@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import StockBook.dto.responses.Stock_RequestResponse;
@@ -34,9 +35,9 @@ public class Stock_RequestController {
     }
 
     //3. to get all stock_requests
-    @GetMapping("findAll")
-    public List<Stock_Request> getAll(){
-        return stock_RequestService.getAll();
+    @PostMapping("findAllInvoice")
+    public List<Stock_Request> getAllInvoice(@RequestParam long id){
+        return stock_RequestService.getAllInvoice(id);
     }
 
     //4. to delete a stock_request

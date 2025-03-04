@@ -6,6 +6,7 @@ public class UsersResponse {
 
 	private String message;
     private Users user;
+    private String token;
 
     public UsersResponse() {
     }
@@ -25,4 +26,12 @@ public class UsersResponse {
     public void setUser(Users user) {
         this.user = user;
     }
+
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
+	}
 }

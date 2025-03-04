@@ -92,28 +92,33 @@ public class Stores {
 	//a store can belong to one and only one business
     @ManyToOne
     @JoinColumn(name = "business", referencedColumnName = "id", nullable = false)
-    @JsonBackReference
+    @JsonBackReference(value = "store-business")
     private Business business;
 
     //a store can have several income records
     @OneToMany(mappedBy = "store")
-    @JsonManagedReference
+    @JsonManagedReference(value = "income-store")
     private List<Income> incomeList;
     
     //a store can have several receipts
     @OneToMany(mappedBy = "store")
-    @JsonManagedReference
+    @JsonManagedReference(value = "receipt-store")
     private List<Receipt> receiptList;
     
     //a store can have several income records
     @OneToMany(mappedBy = "store")
-    @JsonManagedReference
+    @JsonManagedReference(value = "invoice-store")
     private List<Invoice> invoiceList;
 
     //a store can have several expense records
     @OneToMany(mappedBy = "store")
-    @JsonManagedReference
+    @JsonManagedReference(value = "expense-store")
     private List<Expense> expenseList;
+    
+    //a store can have several workers
+    @OneToMany(mappedBy = "store")
+    @JsonManagedReference(value = "user-store")
+    private List<Users> userAccounts;
 
     //********** FOREIGN KEY METHODS *************
 
@@ -155,6 +160,14 @@ public class Stores {
 
 	public void setInvoiceList(List<Invoice> invoiceList) {
 		this.invoiceList = invoiceList;
+	}
+
+	public List<Users> getUserAccounts() {
+		return userAccounts;
+	}
+
+	public void setUserAccounts(List<Users> userAccounts) {
+		this.userAccounts = userAccounts;
 	}
     
     

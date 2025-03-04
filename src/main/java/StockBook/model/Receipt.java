@@ -34,17 +34,21 @@ public class Receipt {
 
     @ManyToOne
     @JoinColumn(name = "teller_id", referencedColumnName = "id", nullable = false)
-    @JsonBackReference
+    @JsonBackReference(value = "receipt-user")
     private Users teller;
     
     @ManyToOne
     @JoinColumn(name = "store", referencedColumnName = "id", nullable = false)
-    @JsonBackReference
+    @JsonBackReference(value = "receipt-store")
     private Stores store;
 
     @OneToMany(mappedBy = "receipt", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+    @JsonManagedReference(value = "item-receipt")
     private List<ReceiptItem> receiptItems = new ArrayList<>();
+    
+    @OneToOne(mappedBy = "receipt", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonBackReference(value = "income-receipt")
+    private Income income;
 
     // Getter and Setter for id
     public long getId() {
@@ -81,6 +85,15 @@ public class Receipt {
     public void setTeller(Users teller) {
         this.teller = teller;
     }
+    
+    // Getter and Setter for teller
+    public long getFkTeller() {
+        return fkTeller;
+    }
+
+    public void setFkTeller(long fkTeller) {
+        this.fkTeller = fkTeller;
+    }
 
     public Stores getStore() {
 		return store;
@@ -89,6 +102,15 @@ public class Receipt {
 	public void setStore(Stores store) {
 		this.store = store;
 	}
+	
+	// Getter and Setter for teller
+    public long getFkStore() {
+        return fkStore;
+    }
+
+    public void setFkStore(long fkStore) {
+        this.fkStore = fkStore;
+    }
 
 	// Getter and Setter for receiptItems
     public List<ReceiptItem> getReceiptItems() {
